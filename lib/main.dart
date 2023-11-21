@@ -23,15 +23,15 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       users = userlist;
     });
+
+    //example of calling POST
+    // List<User> tempUser = await HttpHelper.fetch(
+    //     'https://jsonplaceholder.typicode.com/users', 'post');
+    // print(tempUser[0].id.toString() + tempUser[0].name);
   }
-// users List<dynamic> || List<Map> [{'id':0}, {'name':''}, {}]
-//  users[0]['name'] users[1]['id']
-// users List<User>  [User, User, User]
-// users[0].id  users[0].name
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     //like the useEffect hook from React
     //don't make it async
@@ -43,7 +43,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Dynamic Data'),
+          title: const Text('Dynamic Data'),
         ),
         body: users.isNotEmpty
             ? ListView.builder(

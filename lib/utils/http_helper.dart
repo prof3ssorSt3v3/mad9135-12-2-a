@@ -8,13 +8,6 @@ import 'dart:async';
 
 class HttpHelper {
   //A place to put all / any of our fetch calls
-  //without 'static'
-  //HttpHelper hh = HttpHelper();
-  //hh.fetch();
-  // HttpHelper().fetch()
-  // Random().nextInt()
-  //with 'static'
-  // HttpHelper.fetch()
 
   static Future<List<User>> fetch(String url, String method) async {
     Uri uri = Uri.parse(url);
@@ -26,18 +19,24 @@ class HttpHelper {
         if (resp.statusCode == 200) {
           //we got our response
           List<dynamic> data = jsonDecode(resp.body) as List<dynamic>;
-          // return data; // List<Map<String, dynamic>>
           //we want List<User>
-          // User(id:anum, name:aname, email:anemail)
           return data.map((user) {
             return User.fromJson(user);
-            // return User(
-            //     id: user['id'], name: user['name'], email: user['email']);
-          }).toList(); //data.map() returns an Iterable.
+          }).toList(); //data.map() returns an Iterable, we need a List.
         } else {
           throw Exception('Did not get a valid response.');
         }
       case 'post':
+        http.Response resp = await http.post(uri,
+            body: jsonEncode({'name': 'Buddy', 'email': 'pal@friend.org'}),
+            headers: {'Content-type': 'application/json; charset=UTF-8'});
+        if (resp.statusCode == 201) {
+          Map<String, dynamic> data = jsonDecode(resp.body);
+          User user = User.fromJson(data);
+          return [user];
+        } else {
+          throw Exception('Did not get a valid response.');
+        }
       default:
         throw Exception('Not a valid method.');
     }
@@ -62,9 +61,9 @@ class User {
   }
 
   factory User.fromData(Map userdata) {
-    int _id = userdata['id'];
-    String _name = userdata['name'];
-    String _email = userdata['email'];
-    return User(id: _id, name: _name, email: _email);
+    int id = userdata['id'];
+    String name = userdata['name'];
+    String email = userdata['email'];
+    return User(id: id, name: name, email: email);
   }
 }
