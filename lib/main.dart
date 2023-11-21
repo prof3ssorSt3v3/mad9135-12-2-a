@@ -13,30 +13,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  List<User> users = [];
-
-  void getInfo() async {
-    //get the data from HttpHelper
-    List<User> userlist = await HttpHelper.fetch(
-        'https://jsonplaceholder.typicode.com/users', 'get');
-    //update state with the new value
-    setState(() {
-      users = userlist;
-    });
-
-    //example of calling POST
-    // List<User> tempUser = await HttpHelper.fetch(
-    //     'https://jsonplaceholder.typicode.com/users', 'post');
-    // print(tempUser[0].id.toString() + tempUser[0].name);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    //like the useEffect hook from React
-    //don't make it async
-    getInfo();
-  }
+  final Future<List<User>> users =
+      HttpHelper.fetch('https://jsonplaceholder.typicode.com/users', 'get');
+  //State variable now holds a Future and calls the fetch method immediately
 
   @override
   Widget build(BuildContext context) {
@@ -45,20 +24,38 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Dynamic Data'),
         ),
-        body: users.isNotEmpty
-            ? ListView.builder(
-                padding: const EdgeInsets.all(20),
-                itemCount: users.length,
-                itemBuilder: (BuildContext context, int index) {
-                  User user = users[index];
-                  return ListTile(
-                    title: Text(user.name),
-                    subtitle: Text(user.email),
-                  );
-                },
-              )
-            : const Center(child: Text('No Data Dude.')),
+        body: Padding(
+          padding: const EdgeInsets.all(20),
+          child: FutureBuilder<List<User>>(
+            future: users,
+            builder: (BuildContext context, AsyncSnapshot<List<User>> snapshot) {
+              if (snapshot.hasData) {
+                //build the listview
+                return const Center(child: FlutterLogo(size: 100));
+              } else if (snapshot.hasError) {
+                //tell the user you don't like them
+                return const Center(child: FlutterLogo(size: 40));
+              } else {
+                //tell them to wait...
+                return const Center(child: Text('No Data Dude.'));
+              }
+            },
+          ),
+        ),
       ),
     );
   }
 }
+
+/*
+ListView.builder(
+  itemCount: snapshot.data.length,
+  itemBuilder: (BuildContext context, int index) {
+    User user = snapshot.data[index];
+    return ListTile(
+      title: Text(user.name),
+      subtitle: Text(user.email),
+    );
+  },
+)
+*/
